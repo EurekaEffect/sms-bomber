@@ -1,1 +1,0 @@
-node ./sms-bomber.js
