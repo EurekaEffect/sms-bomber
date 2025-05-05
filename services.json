@@ -1,0 +1,24 @@
+[
+  {
+    "cooldown": 180000,
+    "apis": [
+      {
+        "url": "https://api.kavapp.com/admin/registration",
+        "method": "POST",
+        "body": {
+          "verifiedBy": "1",
+          "phone": "380{phone_number}",
+          "language": "uk"
+        },
+        "expected_response": {
+          "error": null,
+          "message": null,
+          "data": {
+            "verifiedBy": "phone",
+            "phone": "380{phone_number}"
+          }
+        }
+      }
+    ]
+  }
+]
