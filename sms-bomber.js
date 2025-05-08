@@ -47,6 +47,9 @@ const headers = {
                     )
 
                     console.log(output)
+                    if (!success && response === 'idk') {
+                        console.log(response)
+                    }
                 } catch (error) {
                     if (Axios.isAxiosError(error)) {
                         const output = wrapText(('red'), (error.status + ', ' + target_name))
@@ -54,10 +57,12 @@ const headers = {
 
                         console.log(output)
                         console.log(status_text)
+                    } else {
+                        console.log(error)
                     }
                 }
-            }, target_api.cooldown)
-        }, i * (delay_between * 1000))
+            }, target_api.cooldown + (5 * 1_000))
+        }, i * (delay_between * 1_000))
     }
 })()
 
