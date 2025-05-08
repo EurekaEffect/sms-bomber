@@ -1,44 +1,74 @@
-import readline from 'node:readline'
-import fs       from 'node:fs'
+// noinspection JSUnresolvedVariable
+// noinspection JSCheckFunctionSignatures
+
+import Axios from 'axios'
+import UserAgent from 'user-agents'
+import Chalk from 'chalk'
+
+import ReadLine from 'node:readline'
+import FS from 'node:fs'
+
+const user_argent = new UserAgent().toString()
+
+const headers = {
+    'User-Agent': user_argent,
+    'Content-Type': 'application/json'
+};
 
 (async () => {
-    const phone_number = await ask('Введіть номер телефону: +380')
+    // Не змінювати назву змінної.
+    const number = await ask(Chalk.magentaBright('Введіть номер телефону: ') + '+380')
+    const delay_between = await ask(Chalk.magentaBright('Затримка між СМС (у секундах): '))
 
     const services_str = await readFile('./services.json')
-    const formatted_services_str = applyPhoneNumber(services_str, phone_number)
+    const json = JSON.parse(services_str)
 
-    const services = JSON.parse(formatted_services_str);
+    const keys = Object.keys(json)
 
-    for (let service of services) {
-        const apis = service['apis']
+    for (let i = 1; i < keys.length; i++) {
+        const target_name = keys[i - 1]
+        const target_api = json[target_name]
 
-        for (let api of apis) {
-            const { url, method } = api
+        setTimeout(() => {
+            // noinspection ES6MissingAwait
+            sendRepeatableRequest(async () => {
+                try {
+                    const res = await eval(target_api.function.code.replaceAll('%phone-number%', number))
+                    const response = JSON.stringify(res.data)
 
-            const body = JSON.stringify(api['body'])
-            const expected_response = JSON.stringify(api['expected_response'])
+                    const expected_response = new RegExp(target_api.expected_response.body)
+                    const success = expected_response.test(response)
 
-            await fetch(url, {
-                'method': method,
-                'body': body
-            }).then(async (res) => {
-                const json = await res.json()
-                const response = JSON.stringify(json)
+                    const output = wrapText(
+                        (success ? 'green' : 'red'),
+                        (res.status + ', ' + target_name)
+                    )
 
-                console.log(url)
-                console.log(response === expected_response)
-            })
-        }
+                    console.log(output)
+                } catch (error) {
+                    const output = wrapText(
+                        ('red'),
+                        (error.status + ', ' + target_name)
+                    )
+
+                    console.log(output)
+                }
+            }, target_api.cooldown)
+        }, i * (delay_between * 1000))
     }
 })()
 
-function applyPhoneNumber(str_json, phone_number) {
-    return str_json.replaceAll('{phone_number}', phone_number)
+async function sendRepeatableRequest (runnable, cooldown) {
+    await runnable()
+
+    setInterval(async () => {
+        await runnable()
+    }, (cooldown + 5_000))
 }
 
-function readFile(path) {
+function readFile (path) {
     return new Promise((resolve, reject) => {
-        fs.readFile(path, 'utf8', (error, data) => {
+        FS.readFile(path, 'utf8', (error, data) => {
             if (error) {
                 reject(error)
                 return
@@ -49,14 +79,33 @@ function readFile(path) {
     })
 }
 
-function ask(question) {
-    const io = readline.createInterface({
+function ask (question) {
+    const io = ReadLine.createInterface({
         input: process.stdin,
         output: process.stdout
     })
 
-    return new Promise((resolve) => io.question(question, (answer) => {
+    return new Promise((resolve) => io.question(wrapText('purple', question), (answer) => {
         io.close()
         resolve(answer)
     }))
+}
+
+function wrapText (quad_color, text) {
+    switch (quad_color) {
+        case 'purple':
+            return Chalk.bgMagentaBright('  ') + ' ' + text
+        case 'green':
+            return Chalk.bgGreenBright('  ') + ' ' + text
+        case 'red':
+            return Chalk.bgRedBright('  ') + ' ' + text
+
+        default: {
+            return Chalk.bgWhite('  ') + ' ' + text
+        }
+    }
+}
+
+function convertFunctionToString (function_) {
+    return '(' + function_.toString() + ')()'
 }

@@ -1,24 +1,58 @@
-[
-  {
+{
+  "kavapp.com": {
     "cooldown": 180000,
-    "apis": [
-      {
-        "url": "https://api.kavapp.com/admin/registration",
-        "method": "POST",
-        "body": {
-          "verifiedBy": "1",
-          "phone": "380{phone_number}",
-          "language": "uk"
-        },
-        "expected_response": {
-          "error": null,
-          "message": null,
-          "data": {
-            "verifiedBy": "phone",
-            "phone": "380{phone_number}"
-          }
-        }
-      }
-    ]
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://api.kavapp.com/admin/registration', { verifiedBy: '1', phone: ('380' + '%phone-number%'), language: 'uk' }, { headers }); })()"
+    },
+
+    "expected_response": {
+      "body": "{\"error\":null,\"message\":null,\"data\":{\"verifiedBy\":\"phone\",\"phone\":\".*?\"}}"
+    }
+  },
+
+  "ctrs.com.ua/register": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://my.ctrs.com.ua/api/v2/signup', { name: 'Кіт', phone: ('380' + '%phone-number%'), email: 'totallynotafake@gmail.com' }, { headers }) })()"
+    },
+
+    "expected_response": {
+      "body": "{\"success\":true,\"code\":200,\"data\":{\"provider\":\"phone\",\"identity\":\".*?\"}}"
+    }
+  },
+  "ctrs.com.ua/login": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://my.ctrs.com.ua/api/auth/login', { identity: ('380' + '%phone-number%') }, { headers }) })()"
+    },
+
+    "expected_response": {
+      "body": "{\"success\":true,\"code\":200,\"data\":{\"provider\":\"phone\",\"identity\":\".*?\"}}"
+    }
+  },
+
+  "bi.ua": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://bi.ua/api/v1/accounts', { grand_type: 'call_code', stage: '1', login: 'Кіт', phone: ('380' + '%phone-number%') }, { headers }) })()"
+    }
+  },
+  "telegram.org": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://my.telegram.org/auth/send_password', new URLSearchParams({ phone: '+380' + '%phone-number%' }), { headers }) })()"
+    }
+  },
+  "easypay.ua": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://auth.easypay.ua/api/check', { phone: ('380' + '%phone-number%') }, { headers: { ...headers, 'PartnerKey': 'easypay-v2', 'AppId': '4135ec85-3576-46c1-92ce-9b98e5fb8971' }}) })()"
+    }
   }
-]
+}
