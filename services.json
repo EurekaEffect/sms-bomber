@@ -39,6 +39,10 @@
 
     "function": {
       "code": "(async function sendRequest() { return await Axios.post('https://bi.ua/api/v1/accounts', { grand_type: 'call_code', stage: '1', login: 'Кіт', phone: ('380' + '%phone-number%') }, { headers }) })()"
+    },
+
+    "expected_response": {
+      "body": "?"
     }
   },
   "telegram.org": {
@@ -46,6 +50,10 @@
 
     "function": {
       "code": "(async function sendRequest() { return await Axios.post('https://my.telegram.org/auth/send_password', new URLSearchParams({ phone: '+380' + '%phone-number%' }), { headers }) })()"
+    },
+
+    "expected_response": {
+      "body": "?"
     }
   },
   "easypay.ua": {
@@ -53,6 +61,10 @@
 
     "function": {
       "code": "(async function sendRequest() { return await Axios.post('https://auth.easypay.ua/api/check', { phone: ('380' + '%phone-number%') }, { headers: { ...headers, 'PartnerKey': 'easypay-v2', 'AppId': '4135ec85-3576-46c1-92ce-9b98e5fb8971' }}) })()"
+    },
+
+    "expected_response": {
+      "body": "?"
     }
   }
 }

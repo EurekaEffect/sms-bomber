@@ -45,6 +45,11 @@ const headers = {
                     )
 
                     console.log(output)
+
+                    // дебаг)
+                    if (target_api.expected_response.body === '?') {
+                        console.log(res.data)
+                    }
                 } catch (error) {
                     const output = wrapText(
                         ('red'),
