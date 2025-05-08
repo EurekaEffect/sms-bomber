@@ -42,18 +42,7 @@
     },
 
     "expected_response": {
-      "body": "?"
-    }
-  },
-  "telegram.org": {
-    "cooldown": 180000,
-
-    "function": {
-      "code": "(async function sendRequest() { return await Axios.post('https://my.telegram.org/auth/send_password', new URLSearchParams({ phone: '+380' + '%phone-number%' }), { headers }) })()"
-    },
-
-    "expected_response": {
-      "body": "?"
+      "body": "{\"data\":null,\"meta\":null,\"status\":{\"message\":\"Смс відправлено\",\"code\":200}}"
     }
   },
   "easypay.ua": {

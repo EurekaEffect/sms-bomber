@@ -5,6 +5,7 @@ import Axios from 'axios'
 import UserAgent from 'user-agents'
 import Chalk from 'chalk'
 
+import Process from 'node:child_process'
 import ReadLine from 'node:readline'
 import FS from 'node:fs'
 
@@ -16,6 +17,8 @@ const headers = {
 };
 
 (async () => {
+    Process.exec('clear')
+
     // Не змінювати назву змінної.
     const number = await ask(Chalk.magentaBright('Введіть номер телефону: ') + '+380')
     const delay_between = await ask(Chalk.magentaBright('Затримка між СМС (у секундах): '))
@@ -25,8 +28,8 @@ const headers = {
 
     const keys = Object.keys(json)
 
-    for (let i = 1; i < keys.length; i++) {
-        const target_name = keys[i - 1]
+    for (let i = 0; i < keys.length; i++) {
+        const target_name = keys[i]
         const target_api = json[target_name]
 
         setTimeout(() => {
@@ -45,18 +48,14 @@ const headers = {
                     )
 
                     console.log(output)
-
-                    // дебаг)
-                    if (target_api.expected_response.body === '?') {
-                        console.log(res.data)
-                    }
                 } catch (error) {
-                    const output = wrapText(
-                        ('red'),
-                        (error.status + ', ' + target_name)
-                    )
+                    if (Axios.isAxiosError(error)) {
+                        const output = wrapText(('red'), (error.status + ', ' + target_name))
+                        const status_text = wrapText(('red'), ('└─ ' + error.response.statusText))
 
-                    console.log(output)
+                        console.log(output)
+                        console.log(status_text)
+                    }
                 }
             }, target_api.cooldown)
         }, i * (delay_between * 1000))
@@ -114,3 +113,17 @@ function wrapText (quad_color, text) {
 function convertFunctionToString (function_) {
     return '(' + function_.toString() + ')()'
 }
+
+/*
+  "telegram.org": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://my.telegram.org/auth/send_password', new URLSearchParams({ phone: '+380' + '%phone-number%' }), { headers }) })()"
+    },
+
+    "expected_response": {
+      "body": "?"
+    }
+  },
+ */
